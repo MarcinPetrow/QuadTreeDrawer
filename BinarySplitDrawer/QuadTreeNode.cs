@@ -5,21 +5,38 @@ namespace QuadTreeDrawer
 {
 	public class QuadTreeNode : IDrawable
 	{
-		public List<QuadTreeItem> Items { get; set; }
-		public List<QuadTreeItem> UnhandledItems { get; set; }
-
-		private const int MaxItemsPerNode = 100;
+		private const int MaxItemsPerNode = 20;
 		public QuadTreeNode[] Parts;
-		public Pen BorderPen { get; set; }
-		public int Level { get; set; }
-
-		public Rectangle Area { get; set; }
 
 		public QuadTreeNode()
 		{
 			Items = new List<QuadTreeItem>();
 			UnhandledItems = new List<QuadTreeItem>();
 			BorderPen = Pens.OrangeRed;
+		}
+
+		public List<QuadTreeItem> Items { get; set; }
+		public List<QuadTreeItem> UnhandledItems { get; set; }
+		public Pen BorderPen { get; set; }
+		public int Level { get; set; }
+
+		public Rectangle Area { get; set; }
+
+		public void Paint(Graphics g, Rectangle area)
+		{
+			if (Area.IntersectsWith(area))
+			{
+				g.DrawRectangle(BorderPen, Area);
+			}
+
+			if (Parts == null)
+			{
+				return;
+			}
+			for (var partId = 0; partId < 4; partId++)
+			{
+				Parts[partId].Paint(g, area);
+			}
 		}
 
 		public bool IsSplitted()
@@ -88,7 +105,7 @@ namespace QuadTreeDrawer
 
 		private void MoveItemToSplits(QuadTreeItem item)
 		{
-			for (int partId = 0; partId < 4; partId++)
+			for (var partId = 0; partId < 4; partId++)
 			{
 				if (Parts[partId].Area.IntersectsWith(item.Area))
 				{
@@ -97,23 +114,6 @@ namespace QuadTreeDrawer
 				}
 			}
 			UnhandledItems.Add(item);
-		}
-
-		public void Paint(Graphics g, Rectangle area)
-		{
-			if (Area.IntersectsWith(area))
-			{
-				g.DrawRectangle(BorderPen, Area);
-			}
-
-			if (Parts == null)
-			{
-				return;
-			}
-			for (int partId = 0; partId < 4; partId++)
-			{
-				Parts[partId].Paint(g, area);
-			}
 		}
 
 		public List<QuadTreeItem> GetItems(Rectangle mouseArea)
@@ -128,7 +128,6 @@ namespace QuadTreeDrawer
 				if (part.Area.IntersectsWith(mouseArea))
 				{
 					resultItems.AddRange(part.GetItems(mouseArea));
-
 				}
 			}
 
@@ -137,7 +136,7 @@ namespace QuadTreeDrawer
 
 		public List<QuadTreeItem> GetAllItems()
 		{
-			List<QuadTreeItem> resultItems = new List<QuadTreeItem>();
+			var resultItems = new List<QuadTreeItem>();
 			resultItems.AddRange(UnhandledItems);
 			if (!IsSplitted())
 			{
@@ -170,7 +169,7 @@ namespace QuadTreeDrawer
 
 		public int GetUnhandledCount()
 		{
-			int result = 0;
+			var result = 0;
 			result += UnhandledItems.Count;
 			if (!IsSplitted())
 			{
@@ -179,6 +178,21 @@ namespace QuadTreeDrawer
 			foreach (var part in Parts)
 			{
 				result += part.GetUnhandledCount();
+			}
+			return result;
+		}
+
+		public int GetTotalCount()
+		{
+			var result = 0;
+			result += UnhandledItems.Count + Items.Count;
+			if (!IsSplitted())
+			{
+				return result;
+			}
+			foreach (var part in Parts)
+			{
+				result += part.GetTotalCount();
 			}
 			return result;
 		}

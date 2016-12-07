@@ -6,17 +6,18 @@ namespace QuadTreeDrawer
 	{
 		public Rectangle Area;
 
-		public void Paint(Graphics g)
-		{
-			g.DrawRectangle(Pens.Black, Area.X, Area.Y, Area.Width, Area.Height);
-		}
-
 		public void Paint(Graphics g, Rectangle area)
 		{
 			if (Area.IntersectsWith(area))
 			{
 				g.DrawRectangle(Pens.Black, Area.X, Area.Y, Area.Width, Area.Height);
 			}
+		}
+
+		public void Paint(Graphics g)
+		{
+			//g.DrawRectangle(Pens.Black, Area.X, Area.Y, Area.Width, Area.Height);
+			g.DrawEllipse(Pens.Black, Area.X, Area.Y, Area.Width, Area.Height);
 		}
 	}
 }

@@ -23,7 +23,6 @@ namespace QuadTreeDrawer
 			{
 				AddNode(item);
 			}
-
 		}
 	}
 }
